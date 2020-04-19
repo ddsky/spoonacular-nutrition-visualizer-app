@@ -1,157 +1,3 @@
-# How to build a simple image classification app with spoonacular API
-
-So this is super simple and in **15 minutes** or less you will have a first working example with the spoonacular API.
-
-Before we start, have a look at the [final result](http://htmlpreview.github.io/?https://github.com/ddsky/spoonacular-nutrition-visualizer-app/index.html) so you know what you're in for.
-
-## Set up
-
-This demo will use [Vue.js](https://vuejs.org/v2/guide/), for uploading an image the [Vue File Agent](https://safrazik.com/vue-file-agent/), for some fun animations [AnimeJS](https://animejs.com/), and of course the [spoonacular recipe API](https://spoonacular.com/food-api). Before you start, get a [free API key](https://spoonacular.com/food-api/pricing) for the spoonacular API and have that ready.
-
-We will not use and SDKs but call the spoonacular API directly. If your app runs on another language than JavaScript get one of our many [SDKs](https://spoonacular.com/food-api/sdk).
-
-## Getting started
-
-This is a single file application so all we need is an html file. Here's the template we can start with. I leave out some styles and fields for brevity, you can always look at the[ complete file](index.html) for reference.
-
-```html
-<!DOCTYPE html>
-<html>
-
-<head>
-    <!-- I'm omitting some meta fileds for brevity here -->
-    <!-- Import the libraries we need -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.1.0/anime.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/vue-file-agent@latest/dist/vue-file-agent.css" />
-    <script src="https://unpkg.com/vue-file-agent@latest/dist/vue-file-agent.umd.js"></script>
-</head>
-
-<body>
-
-    <div id="app">
-        <!-- Here's where our content will go. We let Vue handle everything in under the id #app -->
-    </div>
-
-    <script>
-        var app = new Vue({
-            el: '#app',
-            mounted() {
-            },
-            data: function () {
-                return {
-                    // REPLACE THIS DEMO KEY, get a free key here: https://spoonacular.com/food-api
-                    spoonacularApiKey: 'YOUR-SPOONACULAR-API-KEY', 
-                };
-            },
-            computed: {
-            },
-            methods: {
-            },
-            components: {
-                // import our Vue File Agent component for image uploading
-                vuefileagent: VueFileAgent.VueFileAgent
-            }
-        });
-    </script>
-
-    <!-- Lot's of styles -->
-</body>
-
-</html>
-```
-
-If you open this file in your browser you won't see much but you should also not see any errors in your console.
-
-Make sure you replace `YOUR-SPOONACULAR-API-KEY` with your actual key.
-
-## Adding the components
-
-Let's add the image uploading component directly into the `<div id="app"></div>` like so:
-
-```html
-<div id="app">
-    <VueFileAgent ref="vueFileAgent" :multiple="false" :deletable="true" :uploadUrl="uploadUrl" meta="false"
-                :accept="'image/*'" :maxSize="'10MB'" :maxFiles="1" @upload="onUpload($event)" compact="true"
-                @select="onSelect" :helpText="'Choose images '"
-                :errorText="{type: 'Invalid file type. Only images allowed',
-                size: 'Files should not exceed 10MB in size',}" v-model="foodImages">
-    </VueFileAgent>
-</div>
-```
-
-Instead of uploading we also allow the user to click a demo image which will be sent to the API for analysis. Let's add an example image and connect it with the `analyzeWithDemo` method.
-
-```html
-<img align="right" :src="demoImageUrl" id="demoImg" @click="analyzeWithDemo" />
-```
-
-Now we need to implement the referenced methods in our Vue object in the `<script>` block. So the updated `script` section looks like this:
-
-```html
-<script>
-    var app = new Vue({
-        el: '#app',
-        mounted() {
-        },
-        data: function () {
-             return {
-                // REPLACE THIS DEMO KEY, get a free key here: https://spoonacular.com/food-api
-                spoonacularApiKey: 'YOUR-SPOONACULAR-API-KEY', 
-                demoImageUrl: 'https://spoonacular.com/recipeImages/635350-240x150.jpg',
-                uploadUrl: 'https://api.spoonacular.com/food/images/analyze',
-                uploadHeaders: {},
-                foodImages: [],
-                analyzed: false,
-                analyzedImage: {},
-                nutrition: {}
-            };
-        },
-        methods: {
-            // this will be called after the API responds with the image analysis
-            successCallback(data) {
-                this.analyzedImage = data;
-                this.analyzed = true;
-                let self = this;
-            },
-            onUpload(responses) {
-                this.successCallback(responses[0].data);
-            },
-             // we upload a file directly after it has been added to the upload container
-            onSelect(event) {
-                this.analyzed = false;
-                this.uploadFiles();
-            },
-            // using the default uploader, you may use another uploader instead
-            uploadFiles: function () {
-                this.$refs.vueFileAgent.upload(this.uploadUrl, this.uploadHeaders, this.foodImages);
-            },
-            // make a direct GET request with an image URL instead of a file
-            analyzeWithDemo() {
-                let self = this;
-                var xmlHttp = new XMLHttpRequest();
-                xmlHttp.onreadystatechange = function () {
-                    if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-                        self.successCallback(JSON.parse(xmlHttp.responseText));
-                    }
-                }
-                var url = this.uploadUrl + '?apiKey=' + this.spoonacularApiKey
-                    + '&imageUrl=' + encodeURIComponent(this.demoImageUrl);
-                xmlHttp.open("GET", url, true);
-                xmlHttp.send(null);
-            }
-        },
-        components: {
-            vuefileagent: VueFileAgent.VueFileAgent
-        }
-    });
-</script>
-```
-
-If you run the above code it could work but you won't see anything because I omitted all the CSS and animations code above to make the code clearer. If you understand the above code snippets, you got the basics of how to work with the spoonacular API. Congratulations! Everything else is just "dressing" and making it look nice. To get the full experience, here's the complete code: 
-
-```html
 <!DOCTYPE html>
 <html>
 
@@ -178,7 +24,7 @@ If you run the above code it could work but you won't see anything because I omi
         <div id="imageChooser">
             <VueFileAgent ref="vueFileAgent" :multiple="false" :deletable="true" :uploadUrl="uploadUrl" meta="false"
                 :accept="'image/*'" :maxSize="'10MB'" :maxFiles="1" @upload="onUpload($event)" compact="true"
-                @select="onSelect" :helpText="'Choose images'"
+                @select="onSelect" :helpText="'Choose images or zip files'"
                 :errorText="{
               type: 'Invalid file type. Only images allowed',
               size: 'Files should not exceed 10MB in size',
@@ -241,8 +87,7 @@ If you run the above code it could work but you won't see anything because I omi
             },
             data: function () {
                 return {
-                    // REPLACE THIS DEMO KEY, get a free key here: https://spoonacular.com/food-api
-                    spoonacularApiKey: 'YOUR-SPOONACULAR-API-KEY', 
+                    spoonacularApiKey: '871cc9ddc1ea4733830dd2c30e3d691a', // REPLACE THIS DEMO KEY, get a free key here: https://spoonacular.com/food-api
                     demoImageUrl: 'https://spoonacular.com/recipeImages/635350-240x150.jpg',
                     uploadUrl: 'https://api.spoonacular.com/food/images/analyze',
                     uploadHeaders: {},
@@ -316,35 +161,27 @@ If you run the above code it could work but you won't see anything because I omi
                     nutritionTimeline.add(
                         {
                             targets: 'div#calories div',
-                            width: self.nutrition.animationMaxWidth * 
-                            Math.min(1, self.analyzedImage.nutrition.calories.value / self.nutrition.calories100),
+                            width: self.nutrition.animationMaxWidth * Math.min(1, self.analyzedImage.nutrition.calories.value / self.nutrition.calories100),
                             update: function (anim) {
-                                self.nutrition.calories = 
-                                Math.round(self.analyzedImage.nutrition.calories.value * anim.progress / 100);
+                                self.nutrition.calories = Math.round(self.analyzedImage.nutrition.calories.value * anim.progress / 100);
                             },
                         }).add({
                             targets: 'div#fat div',
-                            width: self.nutrition.animationMaxWidth * 
-                            Math.min(1, self.analyzedImage.nutrition.fat.value / self.nutrition.fat100),
+                            width: self.nutrition.animationMaxWidth * Math.min(1, self.analyzedImage.nutrition.fat.value / self.nutrition.fat100),
                             update: function (anim) {
-                                self.nutrition.fat = 
-                                Math.round(self.analyzedImage.nutrition.fat.value * anim.progress / 100);
+                                self.nutrition.fat = Math.round(self.analyzedImage.nutrition.fat.value * anim.progress / 100);
                             },
                         }).add({
                             targets: 'div#protein div',
-                            width: self.nutrition.animationMaxWidth * 
-                            Math.min(1, self.analyzedImage.nutrition.protein.value / self.nutrition.protein100),
+                            width: self.nutrition.animationMaxWidth * Math.min(1, self.analyzedImage.nutrition.protein.value / self.nutrition.protein100),
                             update: function (anim) {
-                                self.nutrition.protein = 
-                                Math.round(self.analyzedImage.nutrition.protein.value * anim.progress / 100);
+                                self.nutrition.protein = Math.round(self.analyzedImage.nutrition.protein.value * anim.progress / 100);
                             },
                         }).add({
                             targets: 'div#carbs div',
-                            width: self.nutrition.animationMaxWidth * 
-                            Math.min(1, self.analyzedImage.nutrition.carbs.value / self.nutrition.carbs100),
+                            width: self.nutrition.animationMaxWidth * Math.min(1, self.analyzedImage.nutrition.carbs.value / self.nutrition.carbs100),
                             update: function (anim) {
-                                self.nutrition.carbs = 
-                                Math.round(self.analyzedImage.nutrition.carbs.value * anim.progress / 100);
+                                self.nutrition.carbs = Math.round(self.analyzedImage.nutrition.carbs.value * anim.progress / 100);
                             },
                         });
 
@@ -412,9 +249,7 @@ If you run the above code it could work but you won't see anything because I omi
                             self.successCallback(JSON.parse(xmlHttp.responseText));
                         }
                     }
-                    var url = this.uploadUrl + '?apiKey=' + this.spoonacularApiKey
-                     + '&imageUrl=' + encodeURIComponent(this.demoImageUrl);
-                    xmlHttp.open("GET", url, true);
+                    xmlHttp.open("GET", this.uploadUrl + '?apiKey=' + this.spoonacularApiKey + '&imageUrl=' + encodeURIComponent(this.demoImageUrl), true);
                     xmlHttp.send(null);
                 }
             },
@@ -544,6 +379,3 @@ If you run the above code it could work but you won't see anything because I omi
 </body>
 
 </html>
-```
-
-If you have questions, check our [FAQ](https://spoonacular.com/food-api/faq) or just [reach out](https://spoonacular.com/food-api/).
