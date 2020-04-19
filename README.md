@@ -2,7 +2,9 @@
 
 So this is super simple and in **15 minutes** or less you will have a first working example with the spoonacular API.
 
-Before we start, have a look at the [final result](http://htmlpreview.github.io/?https://github.com/ddsky/spoonacular-nutrition-visualizer-app/index.html) so you know what you're in for.
+Before we start, have a look at the [final result](https://spoonacular.com/food-api/image-analyzer-demo) so you know what you're in for.
+
+![spoonacular food analysis](spoonacular-image-analysis-small.gif)
 
 ## Set up
 
