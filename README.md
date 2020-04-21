@@ -14,7 +14,7 @@ We will not use and SDKs but call the spoonacular API directly. If your app runs
 
 ## Getting started
 
-This is a single file application so all we need is an html file. Here's the template we can start with. I leave out some styles and fields for brevity, you can always look at the[ complete file](index.html) for reference.
+This is a single file application so all we need is an html file. Here's the template we can start with. I leave out some styles and fields for brevity, you can always look at the [complete file](index.html) for reference.
 
 ```html
 <!DOCTYPE html>
@@ -76,7 +76,7 @@ Let's add the image uploading component directly into the `<div id="app"></div>`
 <div id="app">
     <VueFileAgent ref="vueFileAgent" :multiple="false" :deletable="true" :uploadUrl="uploadUrl" meta="false"
                 :accept="'image/*'" :maxSize="'10MB'" :maxFiles="1" @upload="onUpload($event)" compact="true"
-                @select="onSelect" :helpText="'Choose images '"
+                @select="onSelect" :helpText="'Choose an image'"
                 :errorText="{type: 'Invalid file type. Only images allowed',
                 size: 'Files should not exceed 10MB in size',}" v-model="foodImages">
     </VueFileAgent>
@@ -127,7 +127,7 @@ Now we need to implement the referenced methods in our Vue object in the `<scrip
             },
             // using the default uploader, you may use another uploader instead
             uploadFiles: function () {
-                this.$refs.vueFileAgent.upload(this.uploadUrl, this.uploadHeaders, this.foodImages);
+                this.$refs.vueFileAgent.upload(this.uploadUrl + '?apiKey=' + this.spoonacularApiKey, this.uploadHeaders, this.foodImages);
             },
             // make a direct GET request with an image URL instead of a file
             analyzeWithDemo() {
@@ -180,7 +180,7 @@ If you run the above code it could work but you won't see anything because I omi
         <div id="imageChooser">
             <VueFileAgent ref="vueFileAgent" :multiple="false" :deletable="true" :uploadUrl="uploadUrl" meta="false"
                 :accept="'image/*'" :maxSize="'10MB'" :maxFiles="1" @upload="onUpload($event)" compact="true"
-                @select="onSelect" :helpText="'Choose images'"
+                @select="onSelect" :helpText="'Choose an image'"
                 :errorText="{
               type: 'Invalid file type. Only images allowed',
               size: 'Files should not exceed 10MB in size',
@@ -188,7 +188,7 @@ If you run the above code it could work but you won't see anything because I omi
         </div>
         <template v-if="analyzed">
             <p>
-                I think this is <span class="category">{{ analyzedImage.category.name.replace('_', ' ') }}</span> -
+                I think this is <span class="category">{{ analyzedImage.category.name.replace(/_/gi, ' ') }}</span> -
                 {{ probabilityText }}
                 I only know 50 different dishes right now, here's the <a href="https://spoonacular.com/food-api/docs#Image-Classification-Categories">full list</a>.
             </p>
@@ -202,7 +202,7 @@ If you run the above code it could work but you won't see anything because I omi
         <div style="clear:both;"></div>
 
         <template v-if="analyzed">
-            <h1>Nutrition profile of the average <span>{{ analyzedImage.category.name.replace('_', ' ') }}</span></h1>
+            <h1>Nutrition profile of the average <span>{{ analyzedImage.category.name.replace(/_/gi, ' ') }}</span></h1>
 
             <div id="calories" class="nutritionBar">
                 <div></div><span>{{ nutrition.calories }} calories</span>
@@ -391,7 +391,7 @@ If you run the above code it could work but you won't see anything because I omi
                 },
                 // using the default uploader, you may use another uploader instead
                 uploadFiles: function () {
-                    this.$refs.vueFileAgent.upload(this.uploadUrl, this.uploadHeaders, this.foodImages);
+                    this.$refs.vueFileAgent.upload(this.uploadUrl + '?apiKey=' + this.spoonacularApiKey, this.uploadHeaders, this.foodImages);
                 },
                 // make a direct GET request with an image URL instead of a file
                 analyzeWithDemo() {

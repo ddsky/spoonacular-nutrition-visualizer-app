@@ -24,7 +24,7 @@
         <div id="imageChooser">
             <VueFileAgent ref="vueFileAgent" :multiple="false" :deletable="true" :uploadUrl="uploadUrl" meta="false"
                 :accept="'image/*'" :maxSize="'10MB'" :maxFiles="1" @upload="onUpload($event)" compact="true"
-                @select="onSelect" :helpText="'Choose images or zip files'"
+                @select="onSelect" :helpText="'Choose an image image'"
                 :errorText="{
               type: 'Invalid file type. Only images allowed',
               size: 'Files should not exceed 10MB in size',
@@ -32,7 +32,7 @@
         </div>
         <template v-if="analyzed">
             <p>
-                I think this is <span class="category">{{ analyzedImage.category.name.replace('_', ' ') }}</span> -
+                I think this is <span class="category">{{ analyzedImage.category.name.replace(/_/gi, ' ') }}</span> -
                 {{ probabilityText }}
                 I only know 50 different dishes right now, here's the <a href="https://spoonacular.com/food-api/docs#Image-Classification-Categories">full list</a>.
             </p>
@@ -46,7 +46,7 @@
         <div style="clear:both;"></div>
 
         <template v-if="analyzed">
-            <h1>Nutrition profile of the average <span>{{ analyzedImage.category.name.replace('_', ' ') }}</span></h1>
+            <h1>Nutrition profile of the average <span>{{ analyzedImage.category.name.replace(/_/gi, ' ') }}</span></h1>
 
             <div id="calories" class="nutritionBar">
                 <div></div><span>{{ nutrition.calories }} calories</span>
@@ -226,7 +226,7 @@
                 },
                 // using the default uploader, you may use another uploader instead
                 uploadFiles: function () {
-                    this.$refs.vueFileAgent.upload(this.uploadUrl, this.uploadHeaders, this.foodImages);
+                    this.$refs.vueFileAgent.upload(this.uploadUrl + '?apiKey=' + this.spoonacularApiKey, this.uploadHeaders, this.foodImages);
                 },
                 // make a direct GET request with an image URL instead of a file
                 analyzeWithDemo() {
